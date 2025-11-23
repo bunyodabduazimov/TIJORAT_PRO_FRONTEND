@@ -1,29 +1,38 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
-
 import api from '@/api';
-import { getCookie } from '@/utils/cookies';
-import { setAuthUser } from '@/router';;
 
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+    return null;
+}
+
+const name = ref('');
 const email = ref('');
 const password = ref('');
-const checked = ref(false);
-
+const password_confirmation = ref('');
+const agree = ref(false);
 const loading = ref(false);
 const errorMessage = ref('');
 
 const router = useRouter();
-const route = useRoute();
 const toast = useToast();
-const { t } = useI18n(); // 👈 i18n
+const { t } = useI18n();   // ← мультиязычность
 
-const login = async () => {
-    if (!email.value || !password.value) {
+const register = async () => {
+    if (!name.value || !email.value || !password.value || !password_confirmation.value) {
         errorMessage.value = t('auth.errors.fillAll');
+        return;
+    }
+
+    if (!agree.value) {
+        errorMessage.value = t('auth.errors.mustAgree');
         return;
     }
 
@@ -31,45 +40,38 @@ const login = async () => {
     errorMessage.value = '';
 
     try {
-        // 1. CSRF-cookie
         await api.get('/sanctum/csrf-cookie');
         const xsrfToken = getCookie('XSRF-TOKEN');
 
-        // 2. Логин
-        const { data } = await api.post(
-            '/api/v1/login',
+        await api.post(
+            '/api/v1/register',
             {
+                name: name.value,
                 email: email.value,
-                password: password.value
+                password: password.value,
+                password_confirmation: password_confirmation.value,
             },
-            {
-                headers: {
-                    'X-XSRF-TOKEN': xsrfToken
-                }
-            }
+            { headers: { 'X-XSRF-TOKEN': xsrfToken } }
         );
-
-        // ⚠ предполагаю, что backend возвращает { user: {...} }
-        if (data.user) {
-            setAuthUser(data.user); // ✅ помечаем, что юзер авторизован
-        }
 
         toast.add({
             severity: 'success',
-            summary: t('auth.success.login'),
-            detail: t('auth.success.login'),
-            life: 3000
+            summary: t('auth.success.register'),
+            detail: t('auth.success.register'),
+            life: 4000,
         });
 
-        const redirect = route.query.redirect || '/';
-        router.push(redirect);
+        router.push('/auth/login');
     } catch (e) {
-        errorMessage.value = e?.response?.data?.message || t('auth.errors.loginFailed');
+        errorMessage.value =
+            e?.response?.data?.message ||
+            t('auth.errors.loginFailed');
+
         toast.add({
             severity: 'error',
-            summary: t('auth.errors.loginFailed'),
+            summary: t('auth.errors.registerFailed'),
             detail: errorMessage.value,
-            life: 4000
+            life: 4000,
         });
     } finally {
         loading.value = false;
@@ -104,71 +106,38 @@ const login = async () => {
                         </svg>
 
                         <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">
-                            {{ t('auth.login.title') }}
+                            {{ t('auth.register.title') }}
                         </div>
                         <span class="text-muted-color font-medium">
-                            {{ t('auth.login.subtitle') }}
+                            {{ t('auth.register.subtitle') }}
                         </span>
                     </div>
 
                     <div>
-                        <label
-                            for="email1"
-                            class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2"
-                        >
-                            {{ t('auth.login.email') }}
-                        </label>
-                        <InputText
-                            id="email1"
-                            type="text"
-                            :placeholder="t('auth.login.email')"
-                            class="w-full md:w-[30rem] mb-8"
-                            v-model="email"
-                        />
+                        <label>{{ t('auth.register.name') }}</label>
+                        <InputText v-model="name" placeholder="John Doe" class="w-full mb-4"/>
 
-                        <label
-                            for="password1"
-                            class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2"
-                        >
-                            {{ t('auth.login.password') }}
-                        </label>
-                        <Password
-                            id="password1"
-                            v-model="password"
-                            :placeholder="t('auth.login.password')"
-                            :toggleMask="true"
-                            class="mb-4"
-                            fluid
-                            :feedback="false"
-                        />
+                        <label>{{ t('auth.register.email') }}</label>
+                        <InputText v-model="email" class="w-full mb-4"/>
 
-                        <div class="flex items-center justify-between mt-2 mb-4 gap-8">
-                            <div class="flex items-center">
-                                <Checkbox v-model="checked" id="rememberme1" binary class="mr-2" />
-                                <label for="rememberme1">
-                                    {{ t('auth.login.remember') }}
-                                </label>
-                            </div>
-                            <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">
-                                {{ t('auth.login.forgot') }}
-                            </span>
+                        <label>{{ t('auth.register.password') }}</label>
+                        <Password v-model="password" fluid class="mb-4" toggleMask/>
+
+                        <label>{{ t('auth.register.passwordConfirm') }}</label>
+                        <Password v-model="password_confirmation" fluid class="mb-4" toggleMask/>
+
+                        <div class="flex items-center mb-4">
+                            <Checkbox v-model="agree"/> <span class="ml-2">{{ t('auth.register.agree') }}</span>
                         </div>
 
-                        <p v-if="errorMessage" class="text-red-500 text-sm mb-4">
-                            {{ errorMessage }}
-                        </p>
+                        <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
 
-                        <Button
-                            :label="t('auth.login.button')"
-                            class="w-full"
-                            :loading="loading"
-                            @click="login"
-                        />
+                        <Button :label="t('auth.register.button')" class="w-full" :loading="loading" @click="register"/>
 
-                        <div class="text-center text-sm text-muted-color mt-4">
-                            {{ t('auth.login.no_account') }}
-                            <RouterLink to="/auth/register" class="text-primary font-medium">
-                                {{ t('auth.login.create') }}
+                        <div class="text-center text-sm mt-4">
+                            {{ t('auth.register.haveAccount') }}
+                            <RouterLink to="/auth/login" class="text-primary font-medium">
+                                {{ t('auth.login.button') }}
                             </RouterLink>
                         </div>
                     </div>

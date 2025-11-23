@@ -56,7 +56,7 @@ const logout = async () => {
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <!-- логотип Sakai как в шаблоне -->
+                <!-- твой логотип -->
                 <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         fill-rule="evenodd"
@@ -74,19 +74,18 @@ const logout = async () => {
                         />
                     </g>
                 </svg>
-                <span>TIJORAT PRO</span>
+                <span>SAKAI</span>
             </router-link>
         </div>
 
         <div class="layout-topbar-actions">
-            <!-- блок с темой и конфигуратором -->
             <div class="layout-config-menu">
-                <!-- dark / light -->
+                <!-- toggle dark / light -->
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>
 
-                <!-- палитра / настройки темы -->
+                <!-- палитра -->
                 <div class="relative">
                     <button
                         type="button"
@@ -106,7 +105,7 @@ const logout = async () => {
                 </div>
             </div>
 
-            <!-- кнопка меню (для мобильного, как в Sakai) -->
+            <!-- кнопка меню (мобильное) -->
             <button
                 class="layout-topbar-menu-button layout-topbar-action"
                 v-styleclass="{
@@ -121,7 +120,7 @@ const logout = async () => {
                 <i class="pi pi-ellipsis-v"></i>
             </button>
 
-            <!-- правое выпадающее меню, как на скрине -->
+            <!-- topbar menu -->
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
                     <button type="button" class="layout-topbar-action">
@@ -134,7 +133,7 @@ const logout = async () => {
                         <span>Messages</span>
                     </button>
 
-                    <!-- Профиль с дропдауном, внутри: профиль / настройки / выход -->
+                    <!-- Профиль с дропдауном -->
                     <div class="relative">
                         <button
                             type="button"
@@ -150,51 +149,41 @@ const logout = async () => {
                         >
                             <i class="pi pi-user"></i>
                             <span>Profile</span>
+                            <i class="pi pi-angle-down ml-2"></i>
                         </button>
-                        <!-- ВЕРТИКАЛЬНЫЙ dropdown -->
-                        <div
-                            class="hidden absolute right-0 mt-2 w-56 bg-surface-0 dark:bg-surface-900
-                                border border-surface rounded-xl shadow-lg z-20 p-3"
-                        >
-                            <!-- Заголовок (например PRIMEAPP / имя пользователя) -->
-                            <div class="mb-2 font-medium text-sm text-surface-500 dark:text-surface-300">
-                                Profile
-                            </div>
 
-                            <!-- ЭЛЕМЕНТ: Мой профиль -->
+                        <!-- сам дропдаун -->
+                        <div
+                            class="hidden absolute right-0 mt-2 w-48 bg-surface-0 dark:bg-surface-900 border border-surface rounded-border shadow-lg z-20"
+                        >
                             <button
                                 type="button"
-                                class="w-full flex items-center gap-2 px-2 py-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg"
+                                class="layout-topbar-action w-full !justify-start px-3 py-2"
                                 @click="goToProfile"
                             >
-                                <i class="pi pi-id-card text-lg"></i>
+                                <i class="pi pi-id-card mr-2"></i>
                                 <span>Мой профиль</span>
                             </button>
 
-                            <!-- ЭЛЕМЕНТ: Настройки -->
                             <button
                                 type="button"
-                                class="w-full flex items-center gap-2 px-2 py-2 hover:bg-surface-100 dark:hover:bg-surface-800 rounded-lg"
+                                class="layout-topbar-action w-full !justify-start px-3 py-2"
                                 @click="goToSettings"
                             >
-                                <i class="pi pi-cog text-lg"></i>
+                                <i class="pi pi-cog mr-2"></i>
                                 <span>Настройки</span>
                             </button>
 
-                            <hr class="my-2 border-surface-200 dark:border-surface-700" />
-
-                            <!-- ЭЛЕМЕНТ: ВЫХОД -->
                             <button
                                 type="button"
-                                class="w-full flex items-center gap-2 px-2 py-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg"
+                                class="layout-topbar-action w-full !justify-start px-3 py-2 text-red-500"
                                 :disabled="loadingLogout"
                                 @click="logout"
                             >
-                                <i class="pi pi-sign-out text-lg"></i>
+                                <i class="pi pi-sign-out mr-2"></i>
                                 <span>Выход</span>
                             </button>
                         </div>
-
                     </div>
                 </div>
             </div>
