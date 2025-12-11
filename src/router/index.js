@@ -1,89 +1,84 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import AppLayout from '@/layout/AppLayout.vue';
-import api, { API_VERSION } from '@/api';
+// src/router/index.js
+import { createRouter, createWebHistory } from 'vue-router'
+import AppLayout from '@/layout/AppLayout.vue'
 
-// --- КЭШ ПОЛЬЗОВАТЕЛЯ ---
-let cachedUser = null;
-let userLoaded = false; // уже пытались грузить или нет
+// Модули (разбитые по папкам)
+import authRoutes from '@/modules/auth/router.js'
+// import referencesRoutes from '@/modules/references/router.js'
+// import warehouseRoutes from '@/modules/warehouse/router.js'
 
-async function fetchUser() {
-    // если уже загружали – просто вернуть из памяти
-    if (userLoaded) {
-        return cachedUser;
-    }
+import { registerGuards, setAuthUser, resetAuthCache } from './guards'
 
-    try {
-        const { data } = await api.get(`${API_VERSION}/me`);
-        cachedUser = data;
-    } catch (e) {
-        cachedUser = null;
-    } finally {
-        userLoaded = true;
-    }
+// -----------------------------------------
+// Основные маршруты
+// -----------------------------------------
+const routes = [
+  {
+    path: '/',
+    component: AppLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'dashboard',
+        component: () => import('@/views/Dashboard.vue')
+      },
 
-    return cachedUser;
-}
-
-const router = createRouter({
-    history: createWebHistory(),
-    routes: [
-        {
-            path: '/',
-            component: AppLayout,
-            meta: { requiresAuth: true },
-            children: [
-                { path: '/', name: 'dashboard', component: () => import('@/views/Dashboard.vue') },
-                { path: '/uikit/formlayout', name: 'formlayout', component: () => import('@/views/uikit/FormLayout.vue') },
-                { path: '/uikit/input', name: 'input', component: () => import('@/views/uikit/InputDoc.vue') },
-                // ... остальные роуты
-            ]
-        },
-        {
-            path: '/auth/login',
-            name: 'login',
-            meta: { requiresAuth: false },
-            component: () => import('@/views/pages/auth/Login.vue')
-        },
-        {
-            path: '/auth/register',
-            name: 'register',
-            meta: { requiresAuth: false },
-            component: () => import('@/views/pages/auth/Register.vue')
-        }
+      // Технические примеры PrimeVue
+      {
+        path: '/uikit/formlayout',
+        name: 'formlayout',
+        component: () => import('@/views/uikit/FormLayout.vue')
+      },
+      {
+        path: '/uikit/input',
+        name: 'input',
+        component: () => import('@/views/uikit/InputDoc.vue')
+      }
     ]
-});
+  },
 
-// Гвард
-router.beforeEach(async (to, from, next) => {
-    const requiresAuth = to.matched.some(r => r.meta.requiresAuth !== false);
-    const isAuthPage = to.path.startsWith('/auth');
+  // -----------------------------------------
+  // МОДУЛИ (lazy)
+  // -----------------------------------------
+  ...authRoutes,
+  // ...referencesRoutes,
+  // ...warehouseRoutes,
 
-    const user = await fetchUser();
+  // -----------------------------------------
+  // ACCESS DENIED
+  // -----------------------------------------
+  {
+    path: '/auth/access',
+    name: 'access-denied',
+    meta: { requiresAuth: true },
+    component: () => import('@/modules/auth/pages/Access.vue')
+  },
 
-    if (requiresAuth && !user) {
-        return next({
-            path: '/auth/login',
-            query: { redirect: to.fullPath }
-        });
-    }
+  // -----------------------------------------
+  // 404
+  // -----------------------------------------
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('@/modules/NotFound.vue')
+  }
+]
 
-    if (isAuthPage && user) {
-        return next({ path: '/' });
-    }
+// -----------------------------------------
+// Router instance
+// -----------------------------------------
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
 
-    return next();
-});
+// -----------------------------------------
+// Подключаем ВСЕ гарды
+// -----------------------------------------
+registerGuards(router)
 
-// 👇 ставим пользователя как залогиненного
-export function setAuthUser(user) {
-    cachedUser = user;
-    userLoaded = true;
-}
+// Чтобы Login.vue мог делать import { setAuthUser } from '@/router'
+export { setAuthUser, resetAuthCache }
 
-// 👇 чистим кэш (используем при logout)
-export function resetAuthCache() {
-    cachedUser = null;
-    userLoaded = false;
-}
-
-export default router;
+export default router

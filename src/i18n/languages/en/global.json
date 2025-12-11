@@ -1,0 +1,14 @@
+{
+  "app": {
+    "title": "TIJORAT PRO"
+  },
+  "topbar": {
+    "calendar": "Calendar",
+    "messages": "Messages",
+    "profile": "Profile",
+    "account": "Account",
+    "my_profile": "My profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  }
+}

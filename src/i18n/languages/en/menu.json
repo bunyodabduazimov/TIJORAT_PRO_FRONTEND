@@ -1,0 +1,96 @@
+{
+    "home": "Dashboard",
+
+    "crm": {
+    "title": "CRM",
+    "kanban": "Kanban Board",
+    "leads": "Lead Center",
+    "calendar": "Calendar",
+    "messengers": "Messengers",
+    "sms": "SMS Sender"
+    },
+
+    "accounting": {
+    "title": "Accounting",
+    "kassa": "Payment Documents",
+    "cash": "Cash in Register",
+    "account_statement": "Bank Account Statement",
+    "debt": "Settlements",
+    "price": "Price List",
+    "currency": "Currency Rates"
+    },
+
+    "sales": {
+    "title": "Sales",
+    "add": "Product Sales",
+    "list": "Sales Registry",
+    "mobile": "Mobile Sales",
+    "pos": "POS Window",
+    "returns": "Returns"
+    },
+
+    "purchase": {
+    "title": "Purchasing",
+    "add": "Product Purchase",
+    "list": "Purchasing Registry",
+    "returns": "Returns"
+    },
+
+    "warehouse": {
+    "title": "Warehouse",
+    "stock_balance": "Stock Balance",
+    "inventory": "Inventory",
+    "transfers": "Transfers",
+    "write_off": "Write-offs",
+    "print": "Label Printing"
+    },
+
+    "references": {
+    "title": "Reference Books",
+    "peoples": "Contractors",
+    "products": "Products",
+    "departments": "Departments",
+    "articles": "Articles"
+    },
+
+    "hr": {
+    "title": "HR & Payroll",
+    "employees": "Employees",
+    "salary_calc": "Salary Calculation",
+    "salary_pay": "Salary Payment",
+    "debt": "Employee Settlements",
+    "position": "Hire / Transfer"
+    },
+
+    "report": {
+    "title": "Reports",
+    "sales": "Sales Report",
+    "purchase": "Purchasing Report",
+    "goods": "Product Report",
+    "finance": "Financial Report",
+    "kassa": "Cash Report",
+    "employee": "Employee Report"
+    },
+
+    "settings": {
+    "title": "Settings",
+    "account": "Personal Account",
+    "general": "General Settings",
+    "stores": "Office & Branches",
+    "users": "Users",
+    "plans": "Sales Plans",
+    "currency": "Currencies",
+    "accounts": "Accounts",
+    "warehouses": "Warehouses",
+    "begin_balance": "Opening Balance",
+    "documents": "Documents"
+    },
+
+    "support": {
+    "title": "Support",
+    "guide": "Step-by-Step Guide",
+    "soft": "Software",
+    "faq": "FAQ",
+    "video": "Video Training"
+    }
+}

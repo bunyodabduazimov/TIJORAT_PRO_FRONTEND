@@ -7,6 +7,10 @@ import api from '@/api';
 import { resetAuthCache } from '@/router';
 import { getCookie } from '@/utils/cookies';
 
+import { useI18n } from 'vue-i18n';
+// i18n
+const { t, locale } = useI18n();
+
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 const router = useRouter();
 
@@ -56,7 +60,6 @@ const logout = async () => {
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
-                <!-- логотип Sakai как в шаблоне -->
                 <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         fill-rule="evenodd"
@@ -74,19 +77,16 @@ const logout = async () => {
                         />
                     </g>
                 </svg>
-                <span>TIJORAT PRO</span>
+                <span>{{ t('global.app.title') }}</span>
             </router-link>
         </div>
 
         <div class="layout-topbar-actions">
-            <!-- блок с темой и конфигуратором -->
             <div class="layout-config-menu">
-                <!-- dark / light -->
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>
 
-                <!-- палитра / настройки темы -->
                 <div class="relative">
                     <button
                         type="button"
@@ -126,12 +126,12 @@ const logout = async () => {
                 <div class="layout-topbar-menu-content">
                     <button type="button" class="layout-topbar-action">
                         <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
+                        <span>{{ t('global.topbar.calendar') }}</span>
                     </button>
 
                     <button type="button" class="layout-topbar-action">
                         <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
+                        <span>{{ t('global.topbar.messages') }}</span>
                     </button>
 
                     <!-- Профиль с дропдауном, внутри: профиль / настройки / выход -->
@@ -158,7 +158,7 @@ const logout = async () => {
                         >
                             <!-- Заголовок (например PRIMEAPP / имя пользователя) -->
                             <div class="mb-2 font-medium text-sm text-surface-500 dark:text-surface-300">
-                                Profile
+                                {{ t('global.topbar.profile')}}
                             </div>
 
                             <!-- ЭЛЕМЕНТ: Мой профиль -->
@@ -168,7 +168,7 @@ const logout = async () => {
                                 @click="goToProfile"
                             >
                                 <i class="pi pi-id-card text-lg"></i>
-                                <span>Мой профиль</span>
+                                <span>{{ t('global.topbar.account') }}</span>
                             </button>
 
                             <!-- ЭЛЕМЕНТ: Настройки -->
@@ -178,7 +178,7 @@ const logout = async () => {
                                 @click="goToSettings"
                             >
                                 <i class="pi pi-cog text-lg"></i>
-                                <span>Настройки</span>
+                                <span>{{ t('global.topbar.settings') }}</span>
                             </button>
 
                             <hr class="my-2 border-surface-200 dark:border-surface-700" />
@@ -191,7 +191,7 @@ const logout = async () => {
                                 @click="logout"
                             >
                                 <i class="pi pi-sign-out text-lg"></i>
-                                <span>Выход</span>
+                                <span>{{ t('global.topbar.logout') }}</span>
                             </button>
                         </div>
 

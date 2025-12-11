@@ -4,13 +4,9 @@ import { $t, updatePreset, updateSurfacePalette } from '@primeuix/themes';
 import Aura from '@primeuix/themes/aura';
 import Lara from '@primeuix/themes/lara';
 import Nora from '@primeuix/themes/nora';
-import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n'; // i18n
+import { ref } from 'vue';
 
 const { layoutConfig, isDarkTheme } = useLayout();
-
-// 🔠 i18n: глобальный локаль
-const { locale } = useI18n({ useScope: 'global' });
 
 const presets = {
     Aura,
@@ -36,31 +32,6 @@ const menuOrientationOptions = ref([
 function onMenuOrientationChange() {
     layoutConfig.menuOrientation = menuOrientation.value;
 }
-
-// 🌐 Языки (с флагами)
-const languageOptions = ref([
-    { label: 'RU', value: 'ru' },
-    { label: 'EN', value: 'en' },
-    { label: 'TJ', value: 'tj' },
-    { label: 'UZ', value: 'uz' }
-]);
-
-// если язык уже сохранён – подхватываем
-const savedLang = localStorage.getItem('lang');
-if (savedLang) {
-    locale.value = savedLang;
-}
-
-// при изменении языка – сохраняем и ставим <html lang="">
-watch(
-    () => locale.value,
-    (val) => {
-        if (!val) return;
-        localStorage.setItem('lang', val);
-        document.documentElement.setAttribute('lang', val);
-    },
-    { immediate: true }
-);
 
 const primaryColors = ref([
     { name: 'noir', palette: {} },
@@ -299,25 +270,6 @@ function onMenuModeChange() {
                 <SelectButton v-model="menuOrientation"
                     @change="onMenuOrientationChange"
                     :options="menuOrientationOptions" optionLabel="label" optionValue="value" />
-            </div>
-
-            <!-- 🌐 Переключатель языка с флагами -->
-            <div class="flex flex-col gap-2">
-                <span class="text-sm text-muted-color font-semibold">Language</span>
-                <SelectButton
-                    v-model="locale"
-                    :options="languageOptions"
-                    :allowEmpty="false"
-                    optionValue="value"
-                >
-                    <template #option="slotProps">
-                        <span class="flex items-center gap-2">
-                            <!-- Используй свою библиотеку флагов, например flag-icons -->
-                            <span :class="`fi fi-${slotProps.option.flag}`"></span>
-                            <span>{{ slotProps.option.label }}</span>
-                        </span>
-                    </template>
-                </SelectButton>
             </div>
         </div>
     </div>
