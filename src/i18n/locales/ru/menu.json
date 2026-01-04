@@ -47,7 +47,7 @@
 
     "references": {
       "title": "Справочники",
-      "peoples": "Контрагенты",
+      "counterparties": "Контрагенты",
       "products": "Номенклатура",
       "departments": "Отделения",
       "articles": "Статьи"

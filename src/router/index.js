@@ -1,84 +1,75 @@
 // src/router/index.js
-import { createRouter, createWebHistory } from 'vue-router'
-import AppLayout from '@/layout/AppLayout.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import AppLayout from '@/layout/AppLayout.vue';
+import { useAuthStore } from '@/stores/auth';
 
-// Модули (разбитые по папкам)
-import authRoutes from '@/modules/auth/router.js'
-// import referencesRoutes from '@/modules/references/router.js'
-// import warehouseRoutes from '@/modules/warehouse/router.js'
-
-import { registerGuards, setAuthUser, resetAuthCache } from './guards'
-
-// -----------------------------------------
-// Основные маршруты
-// -----------------------------------------
 const routes = [
   {
     path: '/',
     component: AppLayout,
     meta: { requiresAuth: true },
     children: [
+      // -------- DASHBOARD
+      {path: '',  name: 'dashboard', component: () => import('@/views/pages/Dashboard.vue')},
+
+      // -------- REFERENCES
       {
-        path: '',
-        name: 'dashboard',
-        component: () => import('@/views/Dashboard.vue')
+        path: 'references',
+        children: [
+          {path: 'counterparties', name: 'references.counterparties', component: () => import('@/views/references/Counterparties.vue')},
+          {path: 'products',name: 'references.products', component: () => import('@/views/references/Products.vue')}
+        ]
       },
 
-      // Технические примеры PrimeVue
+      // -------- SETTINGS
       {
-        path: '/uikit/formlayout',
-        name: 'formlayout',
-        component: () => import('@/views/uikit/FormLayout.vue')
-      },
-      {
-        path: '/uikit/input',
-        name: 'input',
-        component: () => import('@/views/uikit/InputDoc.vue')
+        path: 'settings',
+        children: [
+          { path: 'general', name: 'settings.general', component: () => import('@/views/settings/General.vue') },
+          { path: 'stores', name: 'settings.stores', component: () => import('@/views/settings/Stores.vue') },
+          { path: 'users', name: 'settings.users', component: () => import('@/views/settings/Users.vue') },
+          { path: 'currency', name: 'settings.currency', component: () => import('@/views/settings/Currency.vue') },
+        ]
       }
     ]
   },
-
-  // -----------------------------------------
-  // МОДУЛИ (lazy)
-  // -----------------------------------------
-  ...authRoutes,
-  // ...referencesRoutes,
-  // ...warehouseRoutes,
-
-  // -----------------------------------------
-  // ACCESS DENIED
-  // -----------------------------------------
+  // -------- AUTH
   {
-    path: '/auth/access',
-    name: 'access-denied',
-    meta: { requiresAuth: true },
-    component: () => import('@/modules/auth/pages/Access.vue')
+    path: '/auth/login',
+    name: 'login',
+    component: () => import('@/views/auth/Login.vue'),
+    meta: { requiresAuth: false }
   },
-
-  // -----------------------------------------
-  // 404
-  // -----------------------------------------
+  {
+    path: '/auth/register',
+    name: 'register',
+    component: () => import('@/views/auth/Register.vue'),
+    meta: { requiresAuth: false }
+  },
+  // -------- NOT FOUND
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
-    component: () => import('@/modules/NotFound.vue')
+    component: () => import('@/views/pages/NotFound.vue')
   }
-]
+];
 
-// -----------------------------------------
-// Router instance
-// -----------------------------------------
+// Создаём роутер
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
+});
 
-// -----------------------------------------
-// Подключаем ВСЕ гарды
-// -----------------------------------------
-registerGuards(router)
+router.beforeEach((to) => {
+  const auth = useAuthStore();
 
-// Чтобы Login.vue мог делать import { setAuthUser } from '@/router'
-export { setAuthUser, resetAuthCache }
+  if (to.meta.requiresAuth && !auth.user) {
+    return { name: 'login' };
+  }
 
-export default router
+  if (to.name === 'login' && auth.user) {
+    return { name: 'dashboard' };
+  }
+});
+
+export default router;

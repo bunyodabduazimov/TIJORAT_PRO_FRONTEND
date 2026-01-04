@@ -1,52 +1,46 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+
 import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
 import api from '@/api';
-import { resetAuthCache } from '@/router';
-import { getCookie } from '@/utils/cookies';
+import { useAuthStore } from '@/stores/auth';
 
-import { useI18n } from 'vue-i18n';
-// i18n
-const { t, locale } = useI18n();
+const { t } = useI18n();
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
+
 const router = useRouter();
+const auth = useAuthStore();
 
 const loadingLogout = ref(false);
 
+
 const goToProfile = () => {
-    // сюда маршрут своего профиля
-    router.push({ name: 'profile' }); // или router.push('/profile')
+    router.push({ name: 'settings.profile' });
 };
 
 const goToSettings = () => {
-    // сюда маршрут настроек
-    router.push({ name: 'settings' }); // или router.push('/settings')
+    router.push({ name: 'settings.general' });
 };
 
+
 const logout = async () => {
+    if (loadingLogout.value) return;
+
     try {
         loadingLogout.value = true;
 
-        const xsrfToken = getCookie('XSRF-TOKEN');
+        await api.post('/api/v1/logout');
 
-        await api.post('/api/v1/logout', {},
-            {
-                headers: {
-                    'X-XSRF-TOKEN': xsrfToken
-                }
-            }
-        );
+        auth.user = null;
+        auth.initialized = true;
 
-        // 🔁 сброс кеша пользователя в router
-        resetAuthCache();
-
-        // редирект на логин
         router.push({ name: 'login' });
     } catch (e) {
-        console.error('Logout error', e);
+        console.error('Logout error:', e);
     } finally {
         loadingLogout.value = false;
     }
@@ -60,6 +54,7 @@ const logout = async () => {
                 <i class="pi pi-bars"></i>
             </button>
             <router-link to="/" class="layout-topbar-logo">
+                <!-- логотип Sakai как в шаблоне -->
                 <svg viewBox="0 0 54 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         fill-rule="evenodd"
@@ -82,11 +77,14 @@ const logout = async () => {
         </div>
 
         <div class="layout-topbar-actions">
+            <!-- блок с темой и конфигуратором -->
             <div class="layout-config-menu">
+                <!-- dark / light -->
                 <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
                     <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
                 </button>
 
+                <!-- палитра / настройки темы -->
                 <div class="relative">
                     <button
                         type="button"

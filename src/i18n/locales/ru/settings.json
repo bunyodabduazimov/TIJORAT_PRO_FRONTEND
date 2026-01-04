@@ -1,0 +1,14 @@
+{
+  "title": "Настройки",
+
+  "profile": "Личный кабинет",
+  "general": "Общие настройки",
+  "stores": "Офис и филиалы",
+  "users": "Пользователи",
+  "salesPlan": "План продаж",
+  "currency": "Валюты",
+  "accounts": "Счета",
+  "warehouses": "Склады",
+  "openingBalances": "Начальные остатки",
+  "documents": "Документы"
+}

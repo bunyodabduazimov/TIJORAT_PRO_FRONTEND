@@ -1,62 +1,69 @@
 // src/main.js
-import { createApp } from 'vue';
+import { createApp, watch } from 'vue';
 import App from './App.vue';
 import router from './router';
-import { watch } from 'vue';
 
-// PrimeVue и темы
-import Aura from '@primeuix/themes/aura';
+import { createPinia } from 'pinia';
+import { useAuthStore } from '@/stores/auth';
+
 import PrimeVue from 'primevue/config';
+import Aura from '@primeuix/themes/aura';
 import ConfirmationService from 'primevue/confirmationservice';
 import ToastService from 'primevue/toastservice';
 
 import '@/assets/tailwind.css';
 import '@/assets/styles.scss';
 
-import api from './api'
+import api from './api';
 
-import i18n from '@/i18n'
-import { ensureModulesLoaded, getAllLoadedModuleNames } from '@/i18n/registerModule'
+import i18n from '@/i18n';
+import { loadLocale } from '@/i18n/load';
 
-const GLOBAL_I18N_MODULES = ['global', 'menu']
 
-const initialLocale = localStorage.getItem('lang') || i18n.global.locale.value || 'ru'
-i18n.global.locale.value = initialLocale
+async function bootstrap() {
+    const app = createApp(App);
 
-ensureModulesLoaded(i18n, initialLocale, GLOBAL_I18N_MODULES)
-  .catch(e => console.warn('[i18n] preload global modules failed', e))
+    const pinia = createPinia();
+    app.use(pinia);
 
-// при смене locale — перезагружаем глобальные модули (и все ранее загруженные, если хочешь)
-watch(() => i18n.global.locale.value, async (newLocale) => {
-  try {
-    // перезагружаем глобальные
-    await ensureModulesLoaded(i18n, newLocale, GLOBAL_I18N_MODULES)
+    const auth = useAuthStore();
+    await auth.init();
 
-    // опционально: перезагрузить все модули, которые уже были загружены ранее
-    // const all = getAllLoadedModuleNames()
-    // await ensureModulesLoaded(i18n, newLocale, all)
-  } catch (e) {
-    console.warn('[i18n] reload modules on locale change failed', e)
-  }
-})
+    const locale = localStorage.getItem('lang') || i18n.global.locale.value || 'ru';
+    i18n.global.locale.value = locale;
 
-const app = createApp(App);
+    await loadLocale(i18n, locale, 'global');
+    await loadLocale(i18n, locale, 'menu');
 
-app.config.globalProperties.$api = api
-app.provide('api', api)
-app.use(i18n);
-app.use(router);
-
-app.use(PrimeVue, {
-    theme: {
-        preset: Aura,
-        options: {
-            darkModeSelector: '.app-dark'
+    watch(() => i18n.global.locale.value, async (newLocale) => {
+        localStorage.setItem('lang', newLocale);
+        try {
+            await loadLocale(i18n, newLocale, 'global');
+            await loadLocale(i18n, newLocale, 'menu');
+        } catch (e) {
+            console.warn('[i18n] reload failed', e);
         }
-    }
-});
+    });
 
-app.use(ToastService);
-app.use(ConfirmationService);
+    app.config.globalProperties.$api = api;
+    app.provide('api', api);
 
-app.mount('#app');
+    app.use(i18n);
+    app.use(router);
+
+    app.use(PrimeVue, {
+        theme: {
+            preset: Aura,
+            options: {
+                darkModeSelector: '.app-dark'
+            }
+        }
+    });
+
+    app.use(ToastService);
+    app.use(ConfirmationService);
+
+    app.mount('#app');
+}
+
+bootstrap();

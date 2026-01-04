@@ -80,8 +80,8 @@ const model = ref([
                 label: t('menu.references.title'),
                 icon: 'pi pi-fw pi-book',
                 items: [
-                    { label: t('menu.references.peoples'), to: '/peoples', icon: 'pi pi-fw pi-users' },
-                    { label: t('menu.references.products'), to: '/productlist', icon: 'pi pi-fw pi-box' },
+                    { label: t('menu.references.counterparties'), to: '/references/counterparties', icon: 'pi pi-fw pi-users' },
+                    { label: t('menu.references.products'), to: '/references/products', icon: 'pi pi-fw pi-box' },
                     { label: t('menu.references.departments'), to: '/books?type=department', icon: 'pi pi-fw pi-building' },
                     { label: t('menu.references.articles'), to: '/articles', icon: 'pi pi-fw pi-file' }
                 ]
@@ -120,9 +120,9 @@ const model = ref([
                 icon: 'pi pi-fw pi-cog',
                 items: [
                     { label: t('menu.settings.account'), to: '/account', icon: 'pi pi-fw pi-user' },
-                    { label: t('menu.settings.general'), to: '/generalsittings', icon: 'pi pi-fw pi-sliders-h' },
-                    { label: t('menu.settings.stores'), to: '/storesettings', icon: 'pi pi-fw pi-map-marker' },
-                    { label: t('menu.settings.users'), to: '/users', icon: 'pi pi-fw pi-users' },
+                    { label: t('menu.settings.general'), to: '/settings/general', icon: 'pi pi-fw pi-sliders-h' },
+                    { label: t('menu.settings.stores'), to: '/settings/stores', icon: 'pi pi-fw pi-map-marker' },
+                    { label: t('menu.settings.users'), to: '/settings/users', icon: 'pi pi-fw pi-users' },
                     { label: t('menu.settings.plans'), to: '/plans', icon: 'pi pi-fw pi-calendar-plus' },
                     { label: t('menu.settings.currency'), to: '/currencysettings', icon: 'pi pi-fw pi-dollar' },
                     { label: t('menu.settings.accounts'), to: '/cashesettings', icon: 'pi pi-fw pi-money-bill' },
@@ -146,6 +146,7 @@ const model = ref([
         ]
     },
 ]);
+
 </script>
 
 <template>
