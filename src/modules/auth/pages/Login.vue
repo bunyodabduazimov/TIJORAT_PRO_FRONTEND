@@ -4,15 +4,11 @@ import { useRouter, useRoute } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 
-import api from '@/api';
-import { useAuthStore } from '@/stores/auth';
-
-
+import { useAuthStore } from '@/core/stores/auth.store';
 import { useI18nPage, changeLanguage } from '@/i18n/useI18nPage';
 
 const { t } = useI18n();
-useI18nPage('auth'); 
-
+useI18nPage('auth');
 
 const email = ref('');
 const password = ref('');
@@ -25,7 +21,7 @@ const route = useRoute();
 const toast = useToast();
 const auth = useAuthStore();
 
-
+// 🌍 languages
 const languages = [
   { code: 'en', label: 'English' },
   { code: 'ru', label: 'Русский' }
@@ -37,7 +33,7 @@ const onLangChange = async (lang) => {
   await changeLanguage(lang, 'auth');
 };
 
-
+// 🔐 LOGIN
 const login = async () => {
   if (!email.value || !password.value) {
     errorMessage.value = t('auth.errors.fillAll');
@@ -48,18 +44,16 @@ const login = async () => {
   errorMessage.value = '';
 
   try {
-    await api.get('/sanctum/csrf-cookie');
+    const ok = await auth.login({
+      email: email.value,
+      password: password.value,
+      remember: checked.value
+    });
 
-    const { data } = await api.post('/api/v1/login',
-      {
-        email: email.value,
-        password: password.value
-      }
-    );
-
-    // ✅ сохраняем пользователя в Pinia
-    auth.user = data.user;
-    auth.initialized = true;
+    if (!ok) {
+      errorMessage.value = t('auth.errors.loginFailed');
+      return;
+    }
 
     toast.add({
       severity: 'success',
@@ -68,9 +62,9 @@ const login = async () => {
     });
 
     router.push(route.query.redirect || '/');
+
   } catch (e) {
-    errorMessage.value =
-      e?.response?.data?.message || t('auth.errors.loginFailed');
+    errorMessage.value = t('auth.errors.loginFailed');
 
     toast.add({
       severity: 'error',
@@ -94,6 +88,7 @@ const login = async () => {
         background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)"
       >
         <div class="auth-card w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+
           <div class="text-center mb-8 auth-title">
             <img src="/logo.svg" alt="logo" class="mx-auto mb-2 w-48 object-contain" />
             <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-2">
@@ -103,6 +98,7 @@ const login = async () => {
 
           <!-- form -->
           <div>
+
             <FloatLabel variant="on" class="mb-5">
               <InputText v-model="email" class="w-full md:w-[30rem]" />
               <label>{{ t('auth.login.email') }}</label>
@@ -143,7 +139,7 @@ const login = async () => {
             <Button
               :label="t('auth.login.button')"
               class="w-full"
-              :loading="loading"
+              :loading="loading || auth.loading"
               @click="login"
             />
 
@@ -153,8 +149,8 @@ const login = async () => {
                 {{ t('auth.login.create') }}
               </RouterLink>
             </div>
-          </div>
 
+          </div>
         </div>
       </div>
     </div>

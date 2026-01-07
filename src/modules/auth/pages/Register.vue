@@ -1,29 +1,42 @@
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useI18n } from 'vue-i18n';
 
-import api from '@/api';
-import { useI18nPage } from '@/i18n/useI18nPage';
+import { useAuthStore } from '@/core/stores/auth.store';
+import { useI18nPage, changeLanguage } from '@/i18n/useI18nPage';
 
 const { t } = useI18n();
 useI18nPage('auth');
-
 
 const name = ref('');
 const email = ref('');
 const password = ref('');
 const password_confirmation = ref('');
 const agree = ref(false);
+
 const loading = ref(false);
 const errorMessage = ref('');
 
-
 const router = useRouter();
+const route = useRoute();
 const toast = useToast();
+const auth = useAuthStore();
 
+// 🌍 languages
+const languages = [
+  { code: 'en', label: 'English' },
+  { code: 'ru', label: 'Русский' }
+];
 
+const selectedLang = ref(localStorage.getItem('lang') || 'ru');
+
+const onLangChange = async (lang) => {
+  await changeLanguage(lang, 'auth');
+};
+
+// 🔐 REGISTER
 const register = async () => {
   if (!name.value || !email.value || !password.value || !password_confirmation.value) {
     errorMessage.value = t('auth.errors.fillAll');
@@ -49,27 +62,28 @@ const register = async () => {
   errorMessage.value = '';
 
   try {
-    await api.get('/sanctum/csrf-cookie');
+    const ok = await auth.register({
+      name: name.value,
+      email: email.value,
+      password: password.value,
+      password_confirmation: password_confirmation.value
+    });
 
-    await api.post('/api/v1/register',
-      {
-        name: name.value,
-        email: email.value,
-        password: password.value,
-        password_confirmation: password_confirmation.value
-      }
-    );
+    if (!ok) {
+      errorMessage.value = t('auth.errors.registerFailed');
+      return;
+    }
 
     toast.add({
       severity: 'success',
       summary: t('auth.success.register'),
-      life: 4000
+      life: 3000
     });
 
-    router.push('/auth/login');
+    router.push(route.query.redirect || '/');
+
   } catch (e) {
-    errorMessage.value =
-      e?.response?.data?.message || t('auth.errors.registerFailed');
+    errorMessage.value = t('auth.errors.registerFailed');
 
     toast.add({
       severity: 'error',
@@ -92,52 +106,48 @@ const register = async () => {
         style="border-radius: 56px; padding: 0.3rem;
         background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)"
       >
-        <div class="w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
+        <div class="auth-card w-full bg-surface-0 dark:bg-surface-900 py-20 px-8 sm:px-20" style="border-radius: 53px">
 
-          <div class="text-center mb-8">
+          <div class="text-center mb-8 auth-title">
             <img src="/logo.svg" alt="logo" class="mx-auto mb-2 w-48 object-contain" />
-            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium">
+            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-2">
               {{ t('auth.register.title') }}
             </div>
           </div>
 
+          <!-- form -->
           <div>
-            <!-- Name -->
+
             <FloatLabel variant="on" class="mb-5">
               <InputText v-model="name" class="w-full md:w-[30rem]" />
               <label>{{ t('auth.register.name') }}</label>
             </FloatLabel>
 
-            <!-- Email -->
             <FloatLabel variant="on" class="mb-5">
               <InputText v-model="email" class="w-full" />
               <label>{{ t('auth.register.email') }}</label>
             </FloatLabel>
 
-            <!-- Password -->
             <FloatLabel variant="on" class="mb-5">
-              <Password
-                v-model="password"
-                toggleMask
-                fluid
-                feedback
-                :promptLabel="t('auth.register.password_prompt')"
-                :weakLabel="t('auth.register.password_weak')"
-                :mediumLabel="t('auth.register.password_medium')"
-                :strongLabel="t('auth.register.password_strong')"
-              />
+              <Password v-model="password" toggleMask fluid feedback />
               <label>{{ t('auth.register.password') }}</label>
             </FloatLabel>
 
-            <!-- Password confirm -->
             <FloatLabel variant="on" class="mb-5">
-              <Password
-                v-model="password_confirmation"
-                toggleMask
-                fluid
-                :feedback="false"
-              />
+              <Password v-model="password_confirmation" toggleMask fluid :feedback="false" />
               <label>{{ t('auth.register.passwordConfirm') }}</label>
+            </FloatLabel>
+
+            <FloatLabel variant="on" class="mb-5">
+              <Dropdown
+                v-model="selectedLang"
+                :options="languages"
+                optionLabel="label"
+                optionValue="code"
+                class="w-full"
+                @change="onLangChange($event.value)"
+              />
+              <label>{{ t('auth.register.language') }}</label>
             </FloatLabel>
 
             <div class="flex items-center mb-4">
@@ -151,19 +161,19 @@ const register = async () => {
 
             <Button
               :label="t('auth.register.button')"
-              class="w-full mb-3"
-              :loading="loading"
+              class="w-full"
+              :loading="loading || auth.loading"
               @click="register"
             />
 
-            <div class="text-center text-sm mt-2">
+            <div class="text-center text-sm text-muted-color mt-4">
               {{ t('auth.register.haveAccount') }}
               <RouterLink to="/auth/login" class="text-primary font-medium">
                 {{ t('auth.login.button') }}
               </RouterLink>
             </div>
-          </div>
 
+          </div>
         </div>
       </div>
     </div>

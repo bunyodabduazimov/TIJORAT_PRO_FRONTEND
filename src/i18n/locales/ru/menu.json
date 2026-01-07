@@ -45,7 +45,7 @@
       "print": "Печать ценников"
     },
 
-    "references": {
+    "catalog": {
       "title": "Справочники",
       "counterparties": "Контрагенты",
       "products": "Номенклатура",

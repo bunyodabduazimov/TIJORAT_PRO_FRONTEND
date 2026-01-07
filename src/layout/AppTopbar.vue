@@ -1,3 +1,4 @@
+<!-- AppTopbar.vue -->
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
@@ -5,18 +6,15 @@ import { useI18n } from 'vue-i18n';
 
 import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
-import api from '@/api';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/core/stores/auth.store';
 
 const { t } = useI18n();
-
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 
 const router = useRouter();
 const auth = useAuthStore();
 
 const loadingLogout = ref(false);
-
 
 const goToProfile = () => {
     router.push({ name: 'settings.profile' });
@@ -26,26 +24,19 @@ const goToSettings = () => {
     router.push({ name: 'settings.general' });
 };
 
-
 const logout = async () => {
     if (loadingLogout.value) return;
 
     try {
         loadingLogout.value = true;
-
-        await api.post('/api/v1/logout');
-
-        auth.user = null;
-        auth.initialized = true;
-
+        await auth.logout();
         router.push({ name: 'login' });
-    } catch (e) {
-        console.error('Logout error:', e);
     } finally {
         loadingLogout.value = false;
     }
 };
 </script>
+
 
 <template>
     <div class="layout-topbar">

@@ -77,13 +77,13 @@ const model = ref([
 
             // ------ СПРАВОЧНИКИ ------
             {
-                label: t('menu.references.title'),
+                label: t('menu.catalog.title'),
                 icon: 'pi pi-fw pi-book',
                 items: [
-                    { label: t('menu.references.counterparties'), to: '/references/counterparties', icon: 'pi pi-fw pi-users' },
-                    { label: t('menu.references.products'), to: '/references/products', icon: 'pi pi-fw pi-box' },
-                    { label: t('menu.references.departments'), to: '/books?type=department', icon: 'pi pi-fw pi-building' },
-                    { label: t('menu.references.articles'), to: '/articles', icon: 'pi pi-fw pi-file' }
+                    { label: t('menu.catalog.counterparties'), to: '/catalog/counterparties', icon: 'pi pi-fw pi-users' },
+                    { label: t('menu.catalog.products'), to: '/catalog/products', icon: 'pi pi-fw pi-box' },
+                    { label: t('menu.catalog.departments'), to: '/books?type=department', icon: 'pi pi-fw pi-building' },
+                    { label: t('menu.catalog.articles'), to: '/articles', icon: 'pi pi-fw pi-file' }
                 ]
             },
 

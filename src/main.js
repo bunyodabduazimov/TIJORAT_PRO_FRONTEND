@@ -1,10 +1,9 @@
-// src/main.js
 import { createApp, watch } from 'vue';
 import App from './App.vue';
-import router from './router';
+import router from './core/router';
 
 import { createPinia } from 'pinia';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore } from '@/core/stores/auth.store';
 
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
@@ -14,11 +13,8 @@ import ToastService from 'primevue/toastservice';
 import '@/assets/tailwind.css';
 import '@/assets/styles.scss';
 
-import api from './api';
-
-import i18n from '@/i18n';
+import i18n  from '@/i18n';
 import { loadLocale } from '@/i18n/load';
-
 
 async function bootstrap() {
     const app = createApp(App);
@@ -26,9 +22,11 @@ async function bootstrap() {
     const pinia = createPinia();
     app.use(pinia);
 
+    // 🔐 auth preload
     const auth = useAuthStore();
     await auth.init();
 
+    // 🌍 i18n
     const locale = localStorage.getItem('lang') || i18n.global.locale.value || 'ru';
     i18n.global.locale.value = locale;
 
@@ -37,16 +35,9 @@ async function bootstrap() {
 
     watch(() => i18n.global.locale.value, async (newLocale) => {
         localStorage.setItem('lang', newLocale);
-        try {
-            await loadLocale(i18n, newLocale, 'global');
-            await loadLocale(i18n, newLocale, 'menu');
-        } catch (e) {
-            console.warn('[i18n] reload failed', e);
-        }
+        await loadLocale(i18n, newLocale, 'global');
+        await loadLocale(i18n, newLocale, 'menu');
     });
-
-    app.config.globalProperties.$api = api;
-    app.provide('api', api);
 
     app.use(i18n);
     app.use(router);
@@ -54,9 +45,7 @@ async function bootstrap() {
     app.use(PrimeVue, {
         theme: {
             preset: Aura,
-            options: {
-                darkModeSelector: '.app-dark'
-            }
+            options: { darkModeSelector: '.app-dark' }
         }
     });
 
