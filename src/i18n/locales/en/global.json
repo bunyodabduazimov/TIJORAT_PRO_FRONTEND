@@ -10,5 +10,57 @@
     "my_profile": "My profile",
     "settings": "Settings",
     "logout": "Logout"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "update": "Update",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "new": "New",
+    "add": "Add",
+    "search": "Search...",
+    "clear": "Clear",
+    "refresh": "Refresh",
+    "select": "Select",
+    "back": "Back",
+    "confirm": "Confirm"
+  },
+
+  "messages": {
+    "created": "Created successfully",
+    "updated": "Updated successfully",
+    "deleted": "Deleted successfully",
+    "saved": "Saved",
+    "error": "Something went wrong",
+    "loading": "Loading...",
+    "no_data": "No data",
+    "confirm_delete": "Are you sure you want to delete?",
+    "required": "Required field",
+    "validation_error": "Please check the form",
+    "not_found": "Nothing found",
+    "access_denied": "Access denied",
+    "session_expired": "Session expired. Please login again"
+  },
+
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+
+  "labels": {
+    "actions": "Actions",
+    "date": "Date",
+    "from": "From",
+    "to": "To",
+    "total": "Total",
+    "count": "Count"
   }
 }
+
